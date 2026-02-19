@@ -5,14 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
-        type: 'mysql',
+        type: 'postgres',
         host: 'localhost',
-        port: 3306,
-        username: 'root',
-        password: process.env.DATABASE_PSWD,
-        database: 'mysql',
-        entities: [__dirname + '/../**/*.entity{.js,.ts}'],
-        synchronize: true,
+        port: 5432,
+        username: 'casini',
+        password: '',
+        database: 'postgres',
+        synchronize: false,
+        autoLoadEntities: true,
       }),
     }),
   ],
