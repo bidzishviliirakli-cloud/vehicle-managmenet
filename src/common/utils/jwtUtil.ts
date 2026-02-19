@@ -20,6 +20,7 @@ export class JwtUtil {
       const payload = {
         userId: user.id,
       };
+
       return sign(payload, this.getSecret(), {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_TIME || 100,
       });

@@ -6,7 +6,7 @@ import {
 
 export class CommonEntity {
   @PrimaryGeneratedColumn('uuid')
-  public id: string;
+  id: string;
 
   @CreateDateColumn()
   createdAt: Date;
