@@ -7,41 +7,75 @@ import { JwtUtil } from 'src/common/utils/jwtUtil';
 import { SignInDto } from 'src/user/dto/signIn.dto';
 import { SignUpDto } from 'src/user/dto/signUp.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { RepositoryService } from 'src/common/services/Repository.service';
+import { MailService } from 'src/mail/Mail.service';
 import { RoleService } from './role.service';
 
 @Injectable()
-export class UserService {
+export class UserService extends RepositoryService<UserEntity> {
   constructor(
     @InjectRepository(UserEntity)
-    private repository: Repository<UserEntity>,
+    private userRepository: Repository<UserEntity>,
     private roleService: RoleService,
-  ) {}
+    private mailService: MailService,
+  ) {
+    super(userRepository);
+  }
 
-  async signUp(payload: SignUpDto): Promise<string> {
+  async signUp(payload: SignUpDto) {
     try {
       const hash = await this.generateHash(payload.password);
       const role = await this.roleService.findOne('USER');
+      const user = {
+        email: payload.email,
+        fullName: payload.fullName,
+        roleId: role.id,
+        active: true,
+        password: hash,
+      };
 
-      await this.repository.query(
-        `INSERT INTO user_entity (email, "fullName", "roleId", active, password) VALUES ($1,$2,$3,$4,$5)`,
-        [payload.email, payload.fullName, role.id, true, hash],
-      );
-
-      return 'ok';
+      await this.create(user);
+      await this.mailService.sendWelcomeEmail(payload);
     } catch (error) {
-      throw new HttpException(error.message, error.status);
+      this.throwHttpException(error);
     }
   }
 
-  async signIn(signInDto: SignInDto): Promise<any> {
-    const { email, password } = signInDto;
-    const user = await this.repository.query(
+  async signIn(signInDto: SignInDto): Promise<{ accessToken: string } | void> {
+    try {
+      const { email, password } = signInDto;
+      const user = await this.findByEmail(email);
+
+      await this.validatePassword(password, user);
+
+      return { accessToken: JwtUtil.signToken(user) };
+    } catch (error) {
+      this.throwHttpException(error);
+    }
+  }
+
+  async toggleActiveStatus(id: string) {
+    try {
+      const user = await this.findOne(id);
+
+      await this.userRepository.query(
+        `UPDATE user_entity SET active = $2 WHERE id = $1`,
+        [id, !user?.active],
+      );
+
+      return this.findOne(id);
+    } catch (error) {
+      this.throwHttpException(error);
+    }
+  }
+
+  private async findByEmail(email: string) {
+    const user = await this.userRepository.query(
       `SELECT * FROM user_entity where email = $1`,
       [email],
     );
-    await this.validatePassword(password, user[0]);
 
-    return { accessToken: JwtUtil.signToken(user[0]) };
+    return user[0];
   }
 
   private async validatePassword(password: string, user: UserEntity) {

@@ -27,7 +27,11 @@ async function bootstrap() {
 
   app.enableCors();
   app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidUnknownValues: true }),
+    new ValidationPipe({
+      whitelist: true,
+      forbidUnknownValues: true,
+      skipUndefinedProperties: true,
+    }),
   );
 
   await app.listen(PORT);

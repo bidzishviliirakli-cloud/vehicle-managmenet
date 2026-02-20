@@ -9,7 +9,8 @@ import { CategoryEntity } from './entities/category.entity';
 import { CarService } from './services/car.service';
 import { CategoryService } from './services/category.service';
 import { TagService } from './services/tag.service';
-import { CarController } from './controllers/car.controller';
+import { CarImageService } from './services/carImage.service';
+import { CarTagService } from './services/carTag.service';
 
 @Module({
   imports: [
@@ -21,7 +22,14 @@ import { CarController } from './controllers/car.controller';
       CarTagEntity,
     ]),
   ],
-  providers: [CarService, CategoryService, TagService],
-  controllers: [CarController],
+  providers: [
+    CarService,
+    CategoryService,
+    TagService,
+    CarImageService,
+    CarTagService,
+  ],
+  exports: [CarService, TagService, CategoryService],
+  controllers: [],
 })
 export class CarModule {}

@@ -19,5 +19,5 @@ export class CarEntity extends CommonEntity {
 
   @Column()
   @OneToOne(() => CategoryEntity, (category) => category.id)
-  readonly categoryId: string;
+  categoryId: string;
 }
