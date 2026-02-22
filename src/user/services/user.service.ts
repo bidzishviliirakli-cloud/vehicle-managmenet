@@ -9,6 +9,7 @@ import { SignUpDto } from "src/user/dto/signUp.dto";
 import { MailService } from "src/mail/Mail.service";
 import { UserEntity } from "src/user/entities/user.entity";
 import { RepositoryService } from "src/common/services/repository.service";
+import { EHttpCode } from "src/common/contracts/enums";
 import { RoleService } from "./role.service";
 
 @Injectable()
@@ -25,12 +26,12 @@ export class UserService extends RepositoryService<UserEntity> {
 	async signUp(payload: SignUpDto) {
 		try {
 			const hash = await this.generateHash(payload.password);
-			const role = await this.roleService.findOne("USER");
+			const role = await this.roleService.findOneByTitle("USER");
 			const user = {
 				email: payload.email,
 				fullName: payload.fullName,
 				roleId: role.id,
-				active: true,
+				isActive: true,
 				password: hash
 			};
 
@@ -58,7 +59,10 @@ export class UserService extends RepositoryService<UserEntity> {
 		try {
 			const user = await this.findOne(id);
 
-			await this.userRepository.query(`UPDATE user_entity SET active = $2 WHERE id = $1`, [id, !user?.active]);
+			await this.userRepository.query(`UPDATE user_entity SET "isActive" = $2 WHERE id = $1`, [
+				id,
+				!user?.isActive
+			]);
 
 			return this.findOne(id);
 		} catch (error) {
@@ -76,7 +80,7 @@ export class UserService extends RepositoryService<UserEntity> {
 		const isValid = await bcrypt.compare(password, user.password);
 
 		if (!isValid) {
-			throw new HttpException("InvalidCredentials", HttpStatus.BAD_REQUEST);
+			throw new HttpException(EHttpCode.INVALID_CREDENTIALS, HttpStatus.BAD_REQUEST);
 		}
 	}
 

@@ -11,7 +11,8 @@ enum ESortableColumns {
 export class CarSortDto implements ISortDto {
 	@ApiProperty({
 		description: "Target column to sort",
-		required: false
+		required: false,
+		enum: ESortableColumns
 	})
 	@IsEnum(ESortableColumns)
 	@IsOptional()
@@ -19,7 +20,8 @@ export class CarSortDto implements ISortDto {
 
 	@ApiProperty({
 		description: "Sort direction ASC/DESC",
-		required: false
+		required: false,
+		enum: ESortDirection
 	})
 	@IsEnum(ESortDirection)
 	@IsOptional()

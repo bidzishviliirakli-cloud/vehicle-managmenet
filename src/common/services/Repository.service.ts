@@ -15,7 +15,7 @@ export class RepositoryService<Entity extends BaseEntity> extends BaseService<En
 		super(repository);
 	}
 
-	public async collect<TResult, FilterDto = unknown, TAnalitics = unknown>({
+	public async collect<TResult, FilterDto = unknown>({
 		query,
 		paginationDto,
 		filterDto,

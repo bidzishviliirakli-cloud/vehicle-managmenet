@@ -1,25 +1,27 @@
 import { HttpException, HttpStatus, InternalServerErrorException } from "@nestjs/common";
 import { decode, verify, sign } from "jsonwebtoken";
 import { UserEntity } from "src/user/entities/user.entity";
+import { EHttpCode } from "../contracts/enums";
 
 export class JwtUtil {
 	static verifyToken(token: string, secret: string): void {
 		try {
 			verify(token, secret);
 		} catch (err) {
-			throw new HttpException("invalidtoken", HttpStatus.UNAUTHORIZED);
+			throw new HttpException(EHttpCode.INVALID_TOKEN, HttpStatus.UNAUTHORIZED);
 		}
 	}
 
 	static signToken(user: UserEntity): string {
 		try {
 			const payload = {
-				userId: user.id
+				userId: user.id,
+				role: user.roleId,
+				isActive: user.isActive,
+				fullName: user.fullName
 			};
 
-			return sign(payload, this.getSecret(), {
-				expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_TIME || 100
-			});
+			return sign(payload, process.env.USER_JWT_SECRET);
 		} catch (error) {
 			throw new InternalServerErrorException();
 		}
@@ -32,19 +34,18 @@ export class JwtUtil {
 			return token;
 		}
 
-		throw new HttpException("invalidAuthHeader", HttpStatus.UNAUTHORIZED);
+		throw new HttpException(EHttpCode.INVALID_AUTH_HEADER, HttpStatus.UNAUTHORIZED);
 	}
 
-	static decodeToken(authorization: string) {
-		const token = this.extractTokenFromHeaders(authorization);
-		return decode(token);
+	static decode(token: string) {
+		try {
+			return decode(token);
+		} catch (err) {
+			throw new HttpException(EHttpCode.INVALID_TOKEN, HttpStatus.UNAUTHORIZED);
+		}
 	}
 
 	static extractTokenFromHeaders(authorization: string): string {
 		return authorization.split(" ")[1];
-	}
-
-	private static getSecret() {
-		return "123";
 	}
 }

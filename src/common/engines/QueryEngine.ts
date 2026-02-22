@@ -51,7 +51,12 @@ export class QueryEngine<FilterDto = unknown> {
 
 		for (const [key, value] of Object.entries(this.filterDto)) {
 			if (typeof value === undefined) return;
-			this.addCondition(`"${key}" = %L`, value);
+
+			const isPrimitive = (typeof value !== "object" && typeof value !== "function") || value === null;
+			const isArray = Array.isArray(value);
+
+			if (isPrimitive) this.addCondition(`"${key}" = %L`, value);
+			if (isArray) this.addCondition(`"${key}" = ANY(%L)`, `{${value.join(",")}}`);
 		}
 
 		return this;

@@ -11,11 +11,11 @@ export class CarEntity extends BaseEntity {
 	@Column()
 	isAvailable: boolean;
 
-	@Column()
-	latitude: string;
+	@Column({ type: "double precision" })
+	latitude: number;
 
-	@Column()
-	longitude: string;
+	@Column({ type: "double precision" })
+	longitude: number;
 
 	@Column("uuid")
 	@OneToOne(() => CategoryEntity, (category) => category.id)

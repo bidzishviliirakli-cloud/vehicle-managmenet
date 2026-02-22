@@ -15,19 +15,19 @@ export class BaseCarDto {
 
 	@ApiProperty({
 		description: "Latitude",
-		type: String
+		type: Number
 	})
 	@IsNotEmpty()
 	@IsString()
-	latitude: string;
+	latitude: number;
 
 	@ApiProperty({
 		description: "Longitude",
-		type: String
+		type: Number
 	})
 	@IsNotEmpty()
 	@IsString()
-	longitude: string;
+	longitude: number;
 
 	@ApiProperty({
 		description: "Car category UUID",

@@ -21,5 +21,5 @@ export class UserEntity extends BaseEntity {
 	readonly roleId: string;
 
 	@Column()
-	readonly active: boolean;
+	readonly isActive: boolean;
 }

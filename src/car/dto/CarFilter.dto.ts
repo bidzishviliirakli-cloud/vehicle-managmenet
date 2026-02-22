@@ -30,10 +30,11 @@ export class CarFilterDto {
 	category: string;
 
 	@ApiProperty({
-		description: "Car tags, separated with comma (Big Car, Small Car, etc...)",
-		type: String,
+		description: "List of car tags",
+		type: [String],
 		required: false
 	})
+	@IsString({ each: true })
 	@IsOptional()
-	tags: string;
+	tags: string[];
 }

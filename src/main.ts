@@ -30,7 +30,8 @@ async function bootstrap() {
 		new ValidationPipe({
 			whitelist: true,
 			forbidUnknownValues: true,
-			skipUndefinedProperties: true
+			skipUndefinedProperties: true,
+			transform: true
 		})
 	);
 

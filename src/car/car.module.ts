@@ -12,9 +12,13 @@ import { TagService } from "./services/tag.service";
 import { CarImageService } from "./services/carImage.service";
 import { CarTagService } from "./services/carTag.service";
 import { CarController } from "./controllers/car.controller";
+import { UserModule } from "src/user/user.module";
 
 @Module({
-	imports: [TypeOrmModule.forFeature([CarEntity, TagEntity, CategoryEntity, CarImageEntity, CarTagEntity])],
+	imports: [
+		TypeOrmModule.forFeature([CarEntity, TagEntity, CategoryEntity, CarImageEntity, CarTagEntity]),
+		UserModule
+	],
 	providers: [CarService, CategoryService, TagService, CarImageService, CarTagService],
 	exports: [CarService, TagService, CategoryService, CarImageService, CarTagService],
 	controllers: [CarController]

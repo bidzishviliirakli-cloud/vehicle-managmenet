@@ -3,27 +3,23 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 
 import { RoleEntity } from "src/user/entities/role.entity";
+import { RepositoryService } from "src/common/services/repository.service";
 
 @Injectable()
-export class RoleService {
+export class RoleService extends RepositoryService<RoleEntity> {
 	constructor(
 		@InjectRepository(RoleEntity)
-		private repository: Repository<RoleEntity>
-	) {}
-
-	async findOne(title: string): Promise<RoleEntity> {
-		const role = await this.repository.query(`SELECT * from role_entity where title = $1`, [title]);
-		return role[0];
+		readonly roleRepository: Repository<RoleEntity>
+	) {
+		super(roleRepository);
 	}
 
-	async findAll(): Promise<RoleEntity[]> {
-		const roles = await this.repository.query(`SELECT * from role_entity`);
-		return roles;
-	}
-
-	async create(role: RoleEntity): Promise<string> {
-		await this.repository.query(`INSERT INTO role_entity (title) VALUES ($1)`, [role]);
-
-		return "ok";
+	async findOneByTitle(title: string): Promise<RoleEntity> {
+		try {
+			const role = await this.repository.query(`SELECT * from role_entity where title = $1`, [title]);
+			return role[0];
+		} catch (error) {
+			this.throwHttpException(error);
+		}
 	}
 }

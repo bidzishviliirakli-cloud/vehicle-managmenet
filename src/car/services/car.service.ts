@@ -8,11 +8,19 @@ import { PaginationDto } from "src/common/dto/Pagination.dto";
 
 import { CarImageEntity } from "../entities/carImage.entity";
 import { CarTagEntity } from "../entities/carTag.entity";
-import { CarFilterDto } from "../dto/CarFilter.dto";
-import { CarSortDto } from "../dto/CarSort.dto";
+import { CarFilterDto } from "../dto/carFilter.dto";
+import { CarSortDto } from "../dto/carSort.dto";
+import { NearestFilterDto } from "../dto/nearestFilter.dto";
 import { CarTagService } from "./carTag.service";
 import { CarImageService } from "./carImage.service";
 
+/**
+ * - JWT auth
+ * - Overview for stylistic mistakes ?
+ * - Deployment
+ * - GH preparation
+ * - Send link for swagger
+ */
 export class CarService extends RepositoryService<CarEntity> {
 	constructor(
 		@InjectRepository(CarEntity)
@@ -23,7 +31,7 @@ export class CarService extends RepositoryService<CarEntity> {
 		super(carRepository);
 	}
 
-	async findAvailable(paginationDto: PaginationDto, filterDto: CarFilterDto, sortDto: CarSortDto) {
+	async find(paginationDto: PaginationDto, filterDto: CarFilterDto, sortDto: CarSortDto) {
 		try {
 			const query = `SELECT 
                             car.id,
@@ -52,7 +60,7 @@ export class CarService extends RepositoryService<CarEntity> {
                             LEFT JOIN category_entity category
                             ON car."categoryId" = category.id`;
 
-			return await this.collect({ query, paginationDto, filterDto, sortDto });
+			return await this.collect<CarFilterDto>({ query, paginationDto, filterDto, sortDto });
 		} catch (error) {
 			this.throwHttpException(error);
 		}
@@ -105,6 +113,40 @@ export class CarService extends RepositoryService<CarEntity> {
 		} catch (error) {
 			this.throwHttpException(error);
 		}
+	}
+
+	async nearest(nearestFilterDto: NearestFilterDto) {
+		const radius = nearestFilterDto.radius ?? 10;
+		const query = `
+                    SELECT * FROM (
+                    SELECT *
+                        FROM (
+                            SELECT 
+                                car.id,
+                                car."plateNumber",
+                                car.latitude,
+                                car.longitude,
+
+                                (
+                                    6371 * acos(
+                                        cos(radians(${nearestFilterDto.latitude})) *
+                                        cos(radians(car.latitude)) *
+                                        cos(radians(car.longitude) - radians(${nearestFilterDto.longitude})) +
+                                        sin(radians(${nearestFilterDto.latitude})) *
+                                        sin(radians(car.latitude))
+                                    )
+                                ) AS distance
+
+                            FROM car_entity car
+                            WHERE car."isAvailable" = true
+                        ) AS sub
+
+                        WHERE sub.distance <= ${radius}
+                        ORDER BY sub.distance ASC
+                    ) as subsub
+                    `;
+
+		return await this.collect<NearestFilterDto>({ query });
 	}
 
 	async save(createCarDto: CreateCarDto) {
