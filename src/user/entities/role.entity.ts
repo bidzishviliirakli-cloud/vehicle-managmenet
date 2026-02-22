@@ -1,9 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity } from "typeorm";
 
-import { CommonEntity } from 'src/common/entities/common.entity';
+import { BaseEntity } from "src/common/entities/base.entity";
 
 @Entity()
-export class RoleEntity extends CommonEntity {
-  @Column({ unique: true })
-  readonly title: string;
+export class RoleEntity extends BaseEntity {
+	@Column({ unique: true })
+	readonly title: string;
 }

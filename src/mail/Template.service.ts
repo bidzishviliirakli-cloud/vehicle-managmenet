@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { SignUpDto } from 'src/user/dto/signUp.dto';
+import { Injectable } from "@nestjs/common";
+import { SignUpDto } from "src/user/dto/signUp.dto";
 
 @Injectable()
 export class TemplateService {
-  generateHtml(signUpDto: SignUpDto): string {
-    return `<!DOCTYPE html>
+	generateHtml(signUpDto: SignUpDto): string {
+		return `<!DOCTYPE html>
                 <html lang="en">
                 <head>
                 <meta charset="UTF-8">
@@ -70,5 +70,5 @@ export class TemplateService {
                 </body>
                 </html>
                 `;
-  }
+	}
 }

@@ -1,80 +1,78 @@
-import {
-  DeepPartial,
-  FindOptionsWhere,
-  QueryDeepPartialEntity,
-  Repository,
-} from 'typeorm';
-import { HttpException } from '@nestjs/common';
-import { CommonEntity } from '../entities/common.entity';
+import * as format from "pg-format";
+import { Repository } from "typeorm";
+import { Injectable } from "@nestjs/common";
 
-export class RepositoryService<Entity extends CommonEntity> {
-  constructor(private repository: Repository<Entity>) {}
+import { TPaginated } from "../contracts/types";
+import { BaseEntity } from "../entities/base.entity";
+import { QueryEngine } from "../engines/QueryEngine";
+import { PaginationDto } from "../dto/Pagination.dto";
+import { ICollectPayload, ISortDto } from "../contracts/interfaces";
+import { BaseService } from "./base.service";
 
-  async findOne(id: string) {
-    try {
-      return this.repository.findOneBy({ id } as FindOptionsWhere<Entity>);
-    } catch (error) {
-      this.throwHttpException(error);
-    }
-  }
+@Injectable()
+export class RepositoryService<Entity extends BaseEntity> extends BaseService<Entity> {
+	constructor(readonly repository: Repository<Entity>) {
+		super(repository);
+	}
 
-  async findAll() {
-    try {
-      return this.repository.find();
-    } catch (error) {
-      this.throwHttpException(error);
-    }
-  }
+	public async collect<TResult, FilterDto = unknown, TAnalitics = unknown>({
+		query,
+		paginationDto,
+		filterDto,
+		sortDto
+	}: ICollectPayload<FilterDto>): Promise<TPaginated<TResult[]>> {
+		try {
+			const queryEngine = await this.prepare(query, paginationDto, filterDto, sortDto);
+			const content = await this.repository.query(queryEngine.getParameterizedQuery(), queryEngine.getParams());
 
-  async create(entity: DeepPartial<Entity>) {
-    try {
-      const record = this.repository.create(entity);
-      await this.repository.save(record);
-      return this.findOne(record.id);
-    } catch (error) {
-      this.throwHttpException(error);
-    }
-  }
+			return {
+				content,
+				meta: queryEngine.getMetadata()
+			};
+		} catch (error) {
+			this.throwHttpException(error);
+		}
+	}
 
-  async bulkInsert(entityList: DeepPartial<Entity>[]) {
-    try {
-      const list = [] as Entity[];
-      for (let i = 0; i < entityList.length; i++) {
-        list.push(this.repository.create(entityList[i]));
-      }
+	private async prepare<FilterDto = unknown>(
+		query: string,
+		paginationDto?: PaginationDto,
+		filterDto?: FilterDto,
+		sortDto?: ISortDto
+	): Promise<QueryEngine> {
+		await this.analyzeTables();
 
-      await this.repository.save(list);
+		const queryEngine = new QueryEngine()
+			.initQuery(query)
+			.initFilterDto(filterDto)
+			.initSortDto(sortDto)
+			.initPaginationDto(paginationDto)
+			.initMetadata()
+			.setFilters()
+			.setSorting();
 
-      return this.findAll();
-    } catch (error) {
-      this.throwHttpException(error);
-    }
-  }
+		const composedQuery = format(queryEngine.getQuery(), ...queryEngine.getParams());
+		const total = await this.countEstimate(composedQuery);
 
-  async update(id: string, entity: QueryDeepPartialEntity<Entity>) {
-    try {
-      await this.repository.update(id, entity);
-      return this.findOne(id);
-    } catch (error) {
-      this.throwHttpException(error);
-    }
-  }
+		return queryEngine.setPagination(total);
+	}
 
-  async delete(id: string) {
-    try {
-      await this.repository.delete(id);
-      return this.findAll();
-    } catch (error) {
-      this.throwHttpException(error);
-    }
-  }
+	/**
+	 * Do not pass an unsanitized `query` to this function, as it is subject to SQL injection.
+	 * Source : https://wiki.postgresql.org/wiki/Count_estimate
+	 **/
+	private async countEstimate(query: string): Promise<number> {
+		const count = await this.repository.query(`SELECT count_estimate($$${query}$$)`);
+		return count[0].count_estimate ?? 0;
+	}
 
-  protected throwHttpException(error) {
-    console.log('error', error);
-    const message =
-      error?.message || error?.data?.message || 'Internal server error';
-    const status = error?.status || error?.data?.status || 500;
-
-    throw new HttpException(message, status);
-  }
+	/**
+	 * @Warning Regularly running commands that acquire locks conflicting with a SHARE UPDATE EXCLUSIVE lock (e.g., ANALYZE) can effectively prevent autovacuums from ever completing.
+	 * Source: https://www.postgresql.org/docs/current/routine-vacuuming.html#VACUUM-BASICS
+	 */
+	private async analyzeTables(): Promise<void> {
+		await this.repository.query(
+			`ANALYZE car_entity, car_image_entity, car_tag_entity, category_entity, tag_entity, user_entity;`
+		);
+	}
 }

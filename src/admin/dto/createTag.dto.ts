@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateTagDto {
-  @ApiProperty({ description: 'Title', type: String })
-  @IsNotEmpty()
-  @IsString()
-  title: string;
+	@ApiProperty({ description: "Title", type: String })
+	@IsNotEmpty()
+	@IsString()
+	title: string;
 }

@@ -1,23 +1,23 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, OneToOne } from "typeorm";
 
-import { CommonEntity } from 'src/common/entities/common.entity';
-import { CategoryEntity } from './category.entity';
+import { BaseEntity } from "src/common/entities/base.entity";
+import { CategoryEntity } from "./category.entity";
 
 @Entity()
-export class CarEntity extends CommonEntity {
-  @Column({ unique: true })
-  plateNumber: string;
+export class CarEntity extends BaseEntity {
+	@Column({ unique: true })
+	plateNumber: string;
 
-  @Column()
-  isAvailable: boolean;
+	@Column()
+	isAvailable: boolean;
 
-  @Column()
-  latitude: string;
+	@Column()
+	latitude: string;
 
-  @Column()
-  longitude: string;
+	@Column()
+	longitude: string;
 
-  @Column()
-  @OneToOne(() => CategoryEntity, (category) => category.id)
-  categoryId: string;
+	@Column("uuid")
+	@OneToOne(() => CategoryEntity, (category) => category.id)
+	categoryId: string;
 }

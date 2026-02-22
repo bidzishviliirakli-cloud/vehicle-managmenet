@@ -1,12 +1,13 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Unique } from "typeorm";
 
-import { CommonEntity } from 'src/common/entities/common.entity';
+import { BaseEntity } from "src/common/entities/base.entity";
 
 @Entity()
-export class CarTagEntity extends CommonEntity {
-  @Column({ unique: true })
-  carId: string;
+@Unique(["carId", "tagId"])
+export class CarTagEntity extends BaseEntity {
+	@Column("uuid")
+	carId: string;
 
-  @Column({ unique: true })
-  tagId: string;
+	@Column("uuid")
+	tagId: string;
 }
