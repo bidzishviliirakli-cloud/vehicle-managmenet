@@ -3,8 +3,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 
 import { CreateCarDto } from "src/admin/dto/createCar.dto";
 import { CarEntity } from "src/car/entities/car.entity";
-import { RepositoryService } from "src/common/services/repository.service";
 import { PaginationDto } from "src/common/dto/Pagination.dto";
+import { RepositoryService } from "src/common/services/repository.service";
 
 import { CarImageEntity } from "../entities/carImage.entity";
 import { CarTagEntity } from "../entities/carTag.entity";
@@ -14,13 +14,6 @@ import { NearestFilterDto } from "../dto/nearestFilter.dto";
 import { CarTagService } from "./carTag.service";
 import { CarImageService } from "./carImage.service";
 
-/**
- * - JWT auth
- * - Overview for stylistic mistakes ?
- * - Deployment
- * - GH preparation
- * - Send link for swagger
- */
 export class CarService extends RepositoryService<CarEntity> {
 	constructor(
 		@InjectRepository(CarEntity)
