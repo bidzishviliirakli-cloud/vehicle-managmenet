@@ -13,7 +13,7 @@ const SWAGGER_PROPERTIES = {
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
-	const PORT = process.env.PORT || 7000;
+	const PORT = process.env.PORT || 3000;
 
 	const config = new DocumentBuilder()
 		.setTitle(SWAGGER_PROPERTIES.title)
