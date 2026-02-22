@@ -10,8 +10,8 @@ import { CarTagDto } from "../dto/carTag.dto";
 @Controller("admin/car/")
 export class CarController {
 	constructor(
-		private carService: CarService,
-		private carTagService: CarTagService
+		private readonly carService: CarService,
+		private readonly carTagService: CarTagService
 	) {}
 
 	@Get()

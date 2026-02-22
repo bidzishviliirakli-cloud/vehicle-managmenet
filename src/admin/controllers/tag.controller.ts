@@ -7,7 +7,7 @@ import { UpdateTagDto } from "../dto/updateTag.dto";
 @ApiTags("Admin - Car Tag CMS")
 @Controller("admin/tag")
 export class TagController {
-	constructor(private tagService: TagService) {}
+	constructor(private readonly tagService: TagService) {}
 
 	@Get()
 	@ApiBearerAuth()

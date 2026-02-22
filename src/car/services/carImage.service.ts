@@ -7,7 +7,7 @@ import { CarImageEntity } from "../entities/carImage.entity";
 export class CarImageService extends RepositoryService<CarImageEntity> {
 	constructor(
 		@InjectRepository(CarImageEntity)
-		readonly carImageRepository: Repository<CarImageEntity>
+		carImageRepository: Repository<CarImageEntity>
 	) {
 		super(carImageRepository);
 	}

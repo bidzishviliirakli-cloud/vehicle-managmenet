@@ -11,7 +11,7 @@ import { NearestFilterDto } from "../dto/nearestFilter.dto";
 @ApiTags("Car portal")
 @Controller("car/")
 export class CarController {
-	constructor(private carService: CarService) {}
+	constructor(private readonly carService: CarService) {}
 
 	@Get()
 	@ApiQueryDecorator("filter", CarFilterDto)

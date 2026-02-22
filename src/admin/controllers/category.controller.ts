@@ -7,7 +7,7 @@ import { UpdateCategoryDto } from "../dto/updateCategory.dto";
 @ApiTags("Admin - Car Category CMS")
 @Controller("admin/category")
 export class CategoryController {
-	constructor(private categoryService: CategoryService) {}
+	constructor(private readonly categoryService: CategoryService) {}
 
 	@Get()
 	@ApiBearerAuth()

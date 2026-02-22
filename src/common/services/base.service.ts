@@ -5,7 +5,7 @@ import { BaseEntity } from "../entities/base.entity";
 export class BaseService<Entity extends BaseEntity> {
 	constructor(readonly repository: Repository<Entity>) {}
 
-	async findOne(id: string) {
+	public async findOne(id: string) {
 		try {
 			return this.repository.findOneBy({ id } as FindOptionsWhere<Entity>);
 		} catch (error) {
@@ -13,7 +13,7 @@ export class BaseService<Entity extends BaseEntity> {
 		}
 	}
 
-	async findAll() {
+	public async findAll() {
 		try {
 			return this.repository.find();
 		} catch (error) {
@@ -21,7 +21,7 @@ export class BaseService<Entity extends BaseEntity> {
 		}
 	}
 
-	async create(entity: DeepPartial<Entity>) {
+	public async create(entity: DeepPartial<Entity>) {
 		try {
 			const record = this.repository.create(entity);
 			await this.repository.save(record);
@@ -31,7 +31,7 @@ export class BaseService<Entity extends BaseEntity> {
 		}
 	}
 
-	async bulkInsert(entityList: DeepPartial<Entity>[]) {
+	public async bulkInsert(entityList: DeepPartial<Entity>[]) {
 		try {
 			const list = [] as Entity[];
 			for (let i = 0; i < entityList.length; i++) {
@@ -46,7 +46,7 @@ export class BaseService<Entity extends BaseEntity> {
 		}
 	}
 
-	async update(id: string, entity: QueryDeepPartialEntity<Entity>) {
+	public async update(id: string, entity: QueryDeepPartialEntity<Entity>) {
 		try {
 			await this.repository.update(id, entity);
 			return this.findOne(id);
@@ -55,7 +55,7 @@ export class BaseService<Entity extends BaseEntity> {
 		}
 	}
 
-	async delete(id: string) {
+	public async delete(id: string) {
 		try {
 			await this.repository.delete(id);
 			return this.findAll();

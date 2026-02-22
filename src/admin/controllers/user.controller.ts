@@ -8,8 +8,8 @@ import { RoleService } from "src/user/services/role.service";
 @Controller("admin/user/")
 export class UserController {
 	constructor(
-		private userService: UserService,
-		private roleService: RoleService
+		private readonly userService: UserService,
+		private readonly roleService: RoleService
 	) {}
 
 	@Get()

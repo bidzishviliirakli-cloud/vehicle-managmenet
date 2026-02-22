@@ -18,6 +18,7 @@ export class CarService extends RepositoryService<CarEntity> {
 	constructor(
 		@InjectRepository(CarEntity)
 		readonly carRepository: Repository<CarEntity>,
+
 		private carImageService: CarImageService,
 		private carTagService: CarTagService
 	) {
